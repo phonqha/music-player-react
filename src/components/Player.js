@@ -6,6 +6,7 @@ import {
     faAngleRight,
     faPause,
 } from "@fortawesome/free-solid-svg-icons";
+import { playAudio } from "../util";
 
 const Player = ({
     audioRef,
@@ -43,6 +44,9 @@ const Player = ({
             setIsPlaying(!isPlaying);
         }
     };
+    const trackAnim = {
+        transform: `translateX(${songInfo.animationPercentage}%)`,
+    };
     const getTime = (time) => {
         return (
             Math.floor(time / 60) +
@@ -64,24 +68,34 @@ const Player = ({
         if (direction === "skip-back") {
             if (currentIndex - 1 === -1) {
                 setCurrentSong(songs[songs.length - 1]);
+                playAudio(isPlaying, audioRef);
                 return;
             }
             setCurrentSong(songs[(currentIndex - 1) % songs.length]);
         }
+        playAudio(isPlaying, audioRef);
     };
 
     return (
         <div className="player">
             <div className="time-control">
                 <p>{getTime(songInfo.currentTime)}</p>
-                <input
-                    min={0}
-                    max={songInfo.duration || 0}
-                    value={songInfo.currentTime}
-                    onChange={dragHandler}
-                    type="range"
-                />
-                <p>{getTime(songInfo.duration)}</p>
+                <div
+                    style={{
+                        background: `linear-gradient(to right, ${currentSong.color[0]},${currentSong.color[1]})`,
+                    }}
+                    className="track"
+                >
+                    <input
+                        min={0}
+                        max={songInfo.duration || 0}
+                        value={songInfo.currentTime}
+                        onChange={dragHandler}
+                        type="range"
+                    />
+                    <div style={trackAnim} className="animate-track"></div>
+                </div>
+                <p>{songInfo.duration ? getTime(songInfo.duration) : "0:00"}</p>
             </div>
             <div className="play-control">
                 <FontAwesomeIcon
